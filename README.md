@@ -1,2 +1,2 @@
 # CG
-Tasks for CG course
+Tasks and lectures for CG course
