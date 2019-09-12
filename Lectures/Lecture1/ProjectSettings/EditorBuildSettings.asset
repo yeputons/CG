@@ -6,12 +6,6 @@ EditorBuildSettings:
   serializedVersion: 2
   m_Scenes:
   - enabled: 1
-    path: Assets/ExampleAssets/Scenes/SampleScene.unity
-    guid: 99c9720ab356a0642a771bea13969a05
-  - enabled: 1
-    path: Assets/Slides/1_VectorSpace.unity
-    guid: b8b7d52469ad7d845a62e6e511583714
-  - enabled: 1
-    path: Assets/HomeWork/New Scene.unity
+    path: Assets/HomeWork/BrokenSphere.unity
     guid: ae48c15c013431d48b437d79f63eecac
   m_configObjects: {}
