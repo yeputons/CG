@@ -1,6 +1,6 @@
 ## Assignment:
 Michael was in such a hurry to get to the lecture, that he messed up both [vertex](https://www.khronos.org/opengl/wiki/Vertex_Shader) and the [fragment](https://www.khronos.org/opengl/wiki/Fragment_Shader) shader!
-Instead of a beautiful and wel-lit sphere, he got a strange stripy figure.
+Instead of a beautiful and well-lit sphere, he got a strange stripy figure.
 
 Since he is your teacher, he asked you to repeat his mistakes, claiming that "it is supposed to look like that". You can find his broken build [here](https://drive.google.com/drive/folders/1wSG1u3oygeQU3NagQRrphPzivOrMqOnP).
 1) Use [RenderDoc](https://renderdoc.org) to peek into the messy shaders he made. 
