@@ -7,6 +7,6 @@ Since he is your teacher, he asked you to repeat his mistakes, claiming that "it
 2) Change Assets/Scripts/BrokenShader.shader in such way, that the sphere in Assets/HomeWork/BrokenSphere.unity looks exactly the same as Michael's. (Open the project with [Unity 2019.2](https://unity.com/ru/releases/2019-2))
 3) Make sure that you have a perfect representation of Michael's results.
 4) Send me a screenshot of your results at <mischapanin@gmail.com> along with your shader. 
-5) e-mail should have the following topic: __HSE.CG.<your_name>.<your_last_name>__
+5) e-mail should have the following topic: __HSE.CG.<your_name>.<your_last_name>.HW1__
 
 Hint: you can attach RenderDoc to unity AND to the broken build to see the difference between the shaders.
