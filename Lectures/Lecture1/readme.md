@@ -1,4 +1,4 @@
-## Assignment:
+## Assignment №1: _"Broken Shader"_
 Michael was in such a hurry to get to the lecture, that he messed up both [vertex](https://www.khronos.org/opengl/wiki/Vertex_Shader) and the [fragment](https://www.khronos.org/opengl/wiki/Fragment_Shader) shader!
 Instead of a beautiful and well-lit sphere, he got a strange stripy figure.
 
