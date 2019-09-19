@@ -1,4 +1,4 @@
-Assignment №2: "Marching Cubes"
+## Assignment №2: "Marching Cubes"
 
 1. Select a scalar function in 3d space. You can either use:
     * A [3d noise](https://gist.github.com/patriciogonzalezvivo/670c22f3966e662d2f83)
@@ -8,8 +8,8 @@ Assignment №2: "Marching Cubes"
 3. For your convenience, the tables for triangleCount and triangleEdges are located in a class `MarchingCubes.Tables`.
 
 Bonus points:
-You can get an extra 10% bonus if you generate the vertices on GPU using a compute shader.
-An example of a compute shader can be found [here](https://www.reddit.com/r/Unity3D/comments/7pa6bq/drawing_mandelbrot_fractal_using_gpu_compute/)
-A small tip: it would probably be convenient to output the results as an [AppendStruturedBuffer](https://docs.unity3d.com/ScriptReference/ComputeBufferType.Append.html) of point structs.
+You can get an extra 10% bonus if you generate the vertices on GPU using a compute shader.    
+An example of a compute shader can be found [here](https://www.reddit.com/r/Unity3D/comments/7pa6bq/drawing_mandelbrot_fractal_using_gpu_compute/).    
+A small tip: it would probably be convenient to output the results as an [AppendStruturedBuffer](https://docs.unity3d.com/ScriptReference/ComputeBufferType.Append.html) of point structs.    
 
 We most likely won't get to talk about compute shaders in our cource, so this is probably the best time to try them out.
