@@ -6,6 +6,8 @@
     * *f = sum of (R/distanceToPoint^2)* from a few points scattered randomly in 3d space. (A.K.A [metaballs](https://en.wikipedia.org/wiki/Metaballs))
 2. Change MeshGenerator.cs in such a way, that it creates a surface of f(x, y, z) = c using marching cubes algorithm. Use both vertex position interpolation and normal vector interpolation.
 3. For your convenience, the tables for triangleCount and triangleEdges are located in a class `MarchingCubes.Tables`.
+4. Send me a screenshot of your results at mischapanin@gmail.com along with your code (best as a link to a repository, but an archive will work).
+5. The e-mail should have the following topic: __HSE.CG.<your_name>.<your_last_name>.HW2__
 
 Bonus points:
 You can get an extra 10% bonus if you generate the vertices on GPU using a compute shader.    
