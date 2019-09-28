@@ -23,8 +23,6 @@ public class MeshGenerator : MonoBehaviour
         _mesh.MarkDynamic();
     }
 
-    private readonly double EPS = 1e-6;
-    
     private readonly List<Vector3> _cubeVertices = new List<Vector3>
     {
         new Vector3(0, 0, 0), // 0
@@ -70,7 +68,7 @@ public class MeshGenerator : MonoBehaviour
         const float MINX = -MAXC, MAXX = MAXC;
         const float MINY = -MAXC, MAXY = MAXC;
         const float MINZ = -MAXC, MAXZ = MAXC;
-        const int STEPS = 50;
+        const int STEPS = 10;
 
         List<Vector3> triangleVertices = new List<Vector3>();
         List<int> triangles = new List<int>();
@@ -80,52 +78,52 @@ public class MeshGenerator : MonoBehaviour
             (MAXY - MINY) / STEPS,
             (MAXZ - MINZ) / STEPS
         );
+
+        Vector3 pos0;
+        Vector3[] vertices = new Vector3[_cubeVertices.Count];
+        double[] verticesVal = new double[_cubeVertices.Count];
+        Vector3[] edgesPos = new Vector3[_cubeEdges.Length];
+
         for (int zi = 0; zi < STEPS; zi++)
         for (int yi = 0; yi < STEPS; yi++)
         for (int xi = 0; xi < STEPS; xi++)
         {
-            Vector3 pos0 = new Vector3(
-                MINX + xi * (MAXX - MINX) / STEPS,
-                MINY + yi * (MAXX - MINX) / STEPS,
-                MINZ + zi * (MAXX - MINX) / STEPS
-            );
-            Vector3[] vertices = _cubeVertices.Select(v => Vector3.Scale(v, cubeSize) + pos0).ToArray();
-            double[] verticesVal = vertices.Select(v => f(v)).ToArray();
+            pos0.x = MINX + xi * (MAXX - MINX) / STEPS;
+            pos0.y = MINY + yi * (MAXX - MINX) / STEPS;
+            pos0.z = MINZ + zi * (MAXX - MINX) / STEPS;
+
             int verticesMsk = 0;
-            for (int i = 0; i < vertices.Length; i++)
+            for (int i = 0; i < _cubeVertices.Count; i++)
+            {
+                vertices[i] = Vector3.Scale(_cubeVertices[i], cubeSize) + pos0;
+                verticesVal[i] = f(vertices[i]);
                 if (verticesVal[i] > 0)
                     verticesMsk |= 1 << i;
+            }
+
             if (MarchingCubes.Tables.CaseToTrianglesCount[verticesMsk] == 0)
             {
                 continue;
             }
 
-            Vector3?[] edgesPos = _cubeEdges.Select(edgeEnds =>
+            for (int i = 0; i < _cubeEdges.Length; i++)
             {
-                Vector3 a = vertices[edgeEnds[0]], b = vertices[edgeEnds[1]];
-                double av = verticesVal[edgeEnds[0]], bv = verticesVal[edgeEnds[1]];
-                double t = -av / (bv - av);
-                if (-EPS <= t && t <= 1.0 + EPS) // NaNs are ignored
+                Vector3 a = vertices[_cubeEdges[i][0]], b = vertices[_cubeEdges[i][1]];
+                double av = verticesVal[_cubeEdges[i][0]], bv = verticesVal[_cubeEdges[i][1]];
+                if (av * bv <= 0)
                 {
+                    double t = -av / (bv - av);
                     t = Math.Max(0, Math.Min(1, t));
-                    return (Vector3?)(a + (float)t * (b - a));
+                    edgesPos[i] = a + (float) t * (b - a);
                 }
-                else
-                {
-                    return null;
-                }
-            }).ToArray();
-            
+            }
+
             for (int i = 0; i < MarchingCubes.Tables.CaseToTrianglesCount[verticesMsk]; i++)
             {
                 int3 edgeIds = MarchingCubes.Tables.CaseToVertices[verticesMsk][i];
-                if (edgesPos[edgeIds.x] == null || edgesPos[edgeIds.y] == null || edgesPos[edgeIds.z] == null)
-                {
-                    throw new InvalidOperationException("There is no vertex on an edge");
-                }
-                triangleVertices.Add((Vector3)edgesPos[edgeIds.x]);
-                triangleVertices.Add((Vector3)edgesPos[edgeIds.y]);
-                triangleVertices.Add((Vector3)edgesPos[edgeIds.z]);
+                triangleVertices.Add(edgesPos[edgeIds.x]);
+                triangleVertices.Add(edgesPos[edgeIds.y]);
+                triangleVertices.Add(edgesPos[edgeIds.z]);
                 triangles.Add(triangleVertices.Count - 3);
                 triangles.Add(triangleVertices.Count - 2);
                 triangles.Add(triangleVertices.Count - 1);
