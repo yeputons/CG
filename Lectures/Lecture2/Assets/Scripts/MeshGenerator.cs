@@ -61,6 +61,7 @@ public class MeshGenerator : MonoBehaviour
             double result = 0;
             result += 1.0 / (v - new Vector3(0, 0, 0)).sqrMagnitude;
             result += 1.0 / (v - new Vector3(Mathf.Sin(Time.time) * 3, 0, 0)).sqrMagnitude;
+            // Negative is outside, positive is inside.
             return result - 1.2;
         };
 
@@ -71,6 +72,7 @@ public class MeshGenerator : MonoBehaviour
         const int STEPS = 25;
 
         List<Vector3> triangleVertices = new List<Vector3>();
+        List<Vector3> triangleVerticesNormal = new List<Vector3>();
         List<int> triangles = new List<int>();
 
         Vector3 cubeSize = new Vector3(
@@ -78,11 +80,16 @@ public class MeshGenerator : MonoBehaviour
             (MAXY - MINY) / STEPS,
             (MAXZ - MINZ) / STEPS
         );
+        const float dd = 0.1f;
+        Vector3 dx = new Vector3(dd, 0, 0);
+        Vector3 dy = new Vector3(0, dd, 0);
+        Vector3 dz = new Vector3(0, 0, dd);
 
         Vector3 pos0;
         Vector3[] vertices = new Vector3[_cubeVertices.Count];
         double[] verticesVal = new double[_cubeVertices.Count];
         Vector3[] edgesPos = new Vector3[_cubeEdges.Length];
+        Vector3[] edgesPosNormal = new Vector3[_cubeEdges.Length];
 
         for (int zi = 0; zi < STEPS; zi++)
         for (int yi = 0; yi < STEPS; yi++)
@@ -97,7 +104,7 @@ public class MeshGenerator : MonoBehaviour
             {
                 vertices[i] = Vector3.Scale(_cubeVertices[i], cubeSize) + pos0;
                 verticesVal[i] = f(vertices[i]);
-                if (verticesVal[i] > 0)
+                if (verticesVal[i] > 0) // Positive is inside.
                     verticesMsk |= 1 << i;
             }
 
@@ -115,6 +122,11 @@ public class MeshGenerator : MonoBehaviour
                     double t = -av / (bv - av);
                     t = Math.Max(0, Math.Min(1, t));
                     edgesPos[i] = a + (float) t * (b - a);
+                    // Negative is outside, positive is inside, so change the sign to point outside.
+                    edgesPosNormal[i].x = -(float) (f(edgesPos[i] + dx) - f(edgesPos[i] - dx));
+                    edgesPosNormal[i].y = -(float) (f(edgesPos[i] + dy) - f(edgesPos[i] - dy));
+                    edgesPosNormal[i].z = -(float) (f(edgesPos[i] + dz) - f(edgesPos[i] - dz));
+                    edgesPosNormal[i].Normalize();
                 }
             }
 
@@ -124,6 +136,9 @@ public class MeshGenerator : MonoBehaviour
                 triangleVertices.Add(edgesPos[edgeIds.x]);
                 triangleVertices.Add(edgesPos[edgeIds.y]);
                 triangleVertices.Add(edgesPos[edgeIds.z]);
+                triangleVerticesNormal.Add(edgesPosNormal[edgeIds.x]);
+                triangleVerticesNormal.Add(edgesPosNormal[edgeIds.y]);
+                triangleVerticesNormal.Add(edgesPosNormal[edgeIds.z]);
                 triangles.Add(triangleVertices.Count - 3);
                 triangles.Add(triangleVertices.Count - 2);
                 triangles.Add(triangleVertices.Count - 1);
@@ -133,8 +148,8 @@ public class MeshGenerator : MonoBehaviour
         // Here unity automatically assumes that vertices are points and hence will be represented as (x, y, z, 1) in homogenous coordinates
         _mesh.Clear(); // To avoid "the supplied vertex array has less vertices than are referenced by the triangles array" error.
         _mesh.SetVertices(triangleVertices);
+        _mesh.SetNormals(triangleVerticesNormal);
         _mesh.SetTriangles(triangles, 0);
-        _mesh.RecalculateNormals();
 
         // Upload mesh data to the GPU
         _mesh.UploadMeshData(false);
