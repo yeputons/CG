@@ -64,11 +64,11 @@ public class MeshGenerator : MonoBehaviour
             return result - 1.2;
         };
 
-        const float MAXC = 8;
+        const float MAXC = 4;
         const float MINX = -MAXC, MAXX = MAXC;
         const float MINY = -MAXC, MAXY = MAXC;
         const float MINZ = -MAXC, MAXZ = MAXC;
-        const int STEPS = 10;
+        const int STEPS = 25;
 
         List<Vector3> triangleVertices = new List<Vector3>();
         List<int> triangles = new List<int>();
