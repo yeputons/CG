@@ -61,9 +61,9 @@ public class MeshGenerator : MonoBehaviour
         Func<Vector3, double> f = v =>
         {
             double result = 0;
-            result += 1.0 / (v - new Vector3(0, 0, 0)).magnitude;
-            result += 1.0 / (v - new Vector3(Mathf.Sin(Time.time) * 3, 0, 0)).magnitude;
-            return result - 2;
+            result += 1.0 / (v - new Vector3(0, 0, 0)).sqrMagnitude;
+            result += 1.0 / (v - new Vector3(Mathf.Sin(Time.time) * 3, 0, 0)).sqrMagnitude;
+            return result - 1.2;
         };
 
         const float MAXC = 8;
