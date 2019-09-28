@@ -60,7 +60,7 @@ public class MeshGenerator : MonoBehaviour
         {
             double result = 0;
             result += 1.0 / (v - new Vector3(0, 0, 0)).sqrMagnitude;
-            result += 1.0 / (v - new Vector3(Mathf.Sin(Time.time) * 3, 0, 0)).sqrMagnitude;
+            result += 1.0 / (v - new Vector3(0, Mathf.Sin(Time.time) * 3, Mathf.Cos(Time.time) * 1.5f)).sqrMagnitude;
             // Negative is outside, positive is inside.
             return result - 1.2;
         };
@@ -69,7 +69,7 @@ public class MeshGenerator : MonoBehaviour
         const float MINX = -MAXC, MAXX = MAXC;
         const float MINY = -MAXC, MAXY = MAXC;
         const float MINZ = -MAXC, MAXZ = MAXC;
-        const int STEPS = 25;
+        const int STEPS = 35;
 
         List<Vector3> triangleVertices = new List<Vector3>();
         List<Vector3> triangleVerticesNormal = new List<Vector3>();
