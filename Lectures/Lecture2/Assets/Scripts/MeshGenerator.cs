@@ -61,8 +61,10 @@ public class MeshGenerator : MonoBehaviour
             double result = 0;
             result += 1.0 / (v - new Vector3(0, 0, 0)).sqrMagnitude;
             result += 1.0 / (v - new Vector3(0, Mathf.Sin(Time.time) * 3, Mathf.Cos(Time.time) * 1.5f)).sqrMagnitude;
+            result += 1.0 / (v - new Vector3(Mathf.Sin(Time.time) * 3, Mathf.Cos(Time.time) * 1.5f, 0)).sqrMagnitude;
+            result += 1.0 / (v - new Vector3(Mathf.Sin(Time.time + Mathf.PI / 2) * 2, 0, Mathf.Cos(Time.time + Mathf.PI / 2) * 2f)).sqrMagnitude;
             // Negative is outside, positive is inside.
-            return result - 1.2;
+            return result - 2;
         };
 
         const float MAXC = 4;
