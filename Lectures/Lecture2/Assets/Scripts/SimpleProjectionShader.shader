@@ -3,7 +3,10 @@
     Properties
     {
         _Color ("Color", Color) = (1,1,1,1)
-        _MainTex ("Albedo (RGB)", 2D) = "white" {}
+        //_MainTex ("Albedo (RGB)", 2D) = "white" {}
+        TextureX ("X axis (ZY plane) texture", 2D) = "white" {}
+        TextureY ("Y axis (XZ plane) texture", 2D) = "white" {}
+        TextureZ ("Z axis (XY plane) texture", 2D) = "white" {}
         _Glossiness ("Smoothness", Range(0,1)) = 0.5
         _Metallic ("Metallic", Range(0,1)) = 0.0
     }
@@ -27,7 +30,9 @@
             struct v2f
             {
                 float4 pos : SV_POSITION;
-                float2 uv : TEXCOORD0;
+                float2 zy : TEXCOORD0;
+                float2 xz : TEXCOORD1;
+                float2 xy : TEXCOORD2;
                 fixed3 normal : NORMAL;
             };
 
@@ -35,12 +40,14 @@
             {
                 v2f o;
                 o.pos = UnityObjectToClipPos(v.vertex);
-                o.uv = v.texcoord;
+                o.zy = v.vertex.zy;
+                o.xz = v.vertex.xz;
+                o.xy = v.vertex.xy;
                 o.normal = UnityObjectToWorldNormal(v.normal);
                 return o;
             }
             
-            sampler2D _MainTex;
+            sampler2D TextureX, TextureY, TextureZ;
 
             fixed4 frag (v2f i) : SV_Target
             {
@@ -48,7 +55,11 @@
                 half3 light = nl * _LightColor0;
                 light += ShadeSH9(half4(i.normal,1));
                 
-                fixed4 col = tex2D(_MainTex, i.uv);
+                fixed4 col = (
+                    tex2D(TextureX, i.zy) * pow(abs(i.normal.x), 3) +
+                    tex2D(TextureY, i.xz) * pow(abs(i.normal.y), 3) +
+                    tex2D(TextureZ, i.xy) * pow(abs(i.normal.z), 3)
+                    );
                 col.rgb *= light;
                 return col;
             }
