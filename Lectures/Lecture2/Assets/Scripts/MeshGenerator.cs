@@ -71,7 +71,7 @@ public class MeshGenerator : MonoBehaviour
         const float MINX = -MAXC, MAXX = MAXC;
         const float MINY = -MAXC, MAXY = MAXC;
         const float MINZ = -MAXC, MAXZ = MAXC;
-        const int STEPS = 35;
+        const int STEPS = 28;
 
         List<Vector3> triangleVertices = new List<Vector3>();
         List<Vector3> triangleVerticesNormal = new List<Vector3>();
