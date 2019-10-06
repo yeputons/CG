@@ -5,6 +5,7 @@
         _BaseColor ("Color", Color) = (0, 0, 0, 1)
         _AmbientColor ("Ambient Color", Color) = (0, 0, 0, 1)
         _Shininess ("Shininess", Float) = 1
+        SkyBox ("SkyBox", Cube) = "white" {}
     }
     SubShader
     {
@@ -36,6 +37,7 @@
             float4 _AmbientColor;
             float4 _BaseColor;
             float _Shininess;
+            samplerCUBE SkyBox;
 
             v2f vert (appdata v)
             {
@@ -48,15 +50,7 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
-                float3 normal = normalize(i.normal);
-                half cosTheta = max(0, dot(normal, _WorldSpaceLightPos0.xyz));
-                half3 diffuse = cosTheta * _LightColor0;
-                
-                float3 viewDirection = normalize(_WorldSpaceCameraPos - i.pos.xyz);
-                float cosAlpha = max(0.0, dot(reflect(-_WorldSpaceLightPos0.xyz, normal), viewDirection));
-                half3 specular = pow(cosAlpha, _Shininess) * _LightColor0;
-                
-                return half4(_BaseColor.rgb * (diffuse + _AmbientColor.rgb + specular), 1);
+                return texCUBE(SkyBox, i.normal);
             }
             ENDCG
         }
