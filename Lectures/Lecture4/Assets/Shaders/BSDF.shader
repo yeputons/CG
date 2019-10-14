@@ -49,22 +49,34 @@
             static const int N = 3000;
             static const float PI = 3.14159265359;
 
-            uint seed;
+            #define GENERATOR_LCG 0
+            #define GENERATOR_SHIFTS 1
+            #define GENERATOR_MT 2
 
-            #define GENERATOR 1
+            #define GENERATOR GENERATOR_MT
+
+            #if GENERATOR == GENERATOR_MT
+            void initMT(uint seed, uint m1, uint m2, uint tmat);
+            float randomMT();
+            #else
+            uint seed;
+            #endif
 
             float rand() {
-                #if GENERATOR == 1
+                #if GENERATOR == GENERATOR_MT
+                return randomMT();
+                #elif GENERATOR == GENERATOR_SHIFTS
                 seed ^= 2747636419u;
                 seed *= 2654435769u;
                 seed ^= seed >> 16;
                 seed *= 2654435769u;
                 seed ^= seed >> 16;
                 seed *= 2654435769u;
+                return frac(seed / 4294967295.0);
                 #else
                 seed = seed * 1664525 + 1013904223;
-                #endif
                 return frac(seed / 4294967295.0);
+                #endif
             }
 
             float3 getPerp(float3 v) {
@@ -94,7 +106,11 @@
 
             fixed4 frag (v2f i) : SV_Target
             {
+                #if GENERATOR == GENERATOR_MT
+                initMT(234340U, 0xf50a1d49U, 0xffa8ffebU, 0x0bf2bfffU);
+                #else
                 seed = 123456789;
+                #endif
                 float3 n = normalize(i.normal);
                 float3 toView = normalize(_WorldSpaceCameraPos - i.pos.xyz);
 
@@ -114,6 +130,85 @@
                 result.rgb = color / sumF;
                 return result;
             }
+
+            // All code Below is ported from TinyMT and as such we affix the original license:
+            /*
+            Copyright (c) 2011 Mutsuo Saito, Makoto Matsumoto, Hiroshima
+            University and The University of Tokyo. All rights reserved.
+            Redistribution and use in source and binary forms, with or without
+            modification, are permitted provided that the following conditions are
+            met:
+                * Redistributions of source code must retain the above copyright
+                  notice, this list of conditions and the following disclaimer.
+                * Redistributions in binary form must reproduce the above
+                  copyright notice, this list of conditions and the following
+                  disclaimer in the documentation and/or other materials provided
+                  with the distribution.
+                * Neither the name of the Hiroshima University nor the names of
+                  its contributors may be used to endorse or promote products
+                  derived from this software without specific prior written
+                  permission.
+            THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+            "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+            LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+            A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+            OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+            SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+            LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+            DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+            THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+            (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+            OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+            */
+            #if GENERATOR == GENERATOR_MT
+            // Represents the Mersenne Twistter's Internal State
+            struct mersenneTwister {
+              uint status[4];
+              uint m1;
+              uint m2;
+              uint tmat;
+            } MT;
+
+            // Initialize the Mersenne Twistter.
+            void initMT(uint seed, uint m1, uint m2, uint tmat) {
+              MT.status[0] = seed;
+              MT.status[1] = m1;
+              MT.status[2] = m2;
+              MT.status[3] = tmat;
+              MT.m1 = m1;
+              MT.m2 = m2;
+              MT.tmat = tmat;
+
+              for (int i = 1; i < 8; i++) {
+                MT.status[i & 3] ^= uint(i) + 1812433253U * MT.status[(i - 1) & 3] ^ (MT.status[(i - 1) & 3] >> 30);
+              }
+              for (int i = 0; i < 12; i++) {
+                randomMT();
+              }
+            }
+
+            // Produce a psuedo-random float value on the range [0, 1]
+            float randomMT() {
+              uint x = (MT.status[0] & 0x7fffffffU) ^ MT.status[1] ^ MT.status[2];
+              uint y = MT.status[3];
+              x ^= (x << 1);
+              y ^= (y >> 1) ^ x;
+              MT.status[0] = MT.status[1];
+              MT.status[1] = MT.status[2];
+              MT.status[2] = x ^ (y << 10);
+              MT.status[3] = y;
+              MT.status[1] ^= -(y & 1U) & MT.m1;
+              MT.status[2] ^= -(y & 1U) & MT.m2;
+
+              uint t0, t1;
+              t0 = MT.status[3];
+              t1 = MT.status[0] + (MT.status[2] >> 8);
+              t0 ^= t1;
+              t0 ^= -(t1 & 1U) & MT.tmat;
+
+              return t0 / 4294967295.0f;
+            }
+            #endif
             ENDCG
         }
     }
