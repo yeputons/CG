@@ -51,8 +51,19 @@
 
             uint seed;
 
+            #define GENERATOR 1
+
             float rand() {
+                #if GENERATOR == 1
+                seed ^= 2747636419u;
+                seed *= 2654435769u;
+                seed ^= seed >> 16;
+                seed *= 2654435769u;
+                seed ^= seed >> 16;
+                seed *= 2654435769u;
+                #else
                 seed = seed * 1664525 + 1013904223;
+                #endif
                 return frac(seed / 4294967295.0);
             }
 
