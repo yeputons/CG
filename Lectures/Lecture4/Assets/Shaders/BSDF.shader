@@ -68,8 +68,9 @@
             }
 
             float3 getPerp(float3 v) {
-                // Something bad will happen around v.x=v.y=0, but that will save us continuity in all other places.
-                return normalize(float3(v.y, -v.x, 0));
+                if (abs(v.x) >= 0.5 || abs(v.y) >= 0.5)
+                    return normalize(float3(v.y, -v.x, 0));
+                return normalize(float3(v.z, 0, -v.x));
             }
 
             float3 getRandomHalfSphere(float3 normal) {
