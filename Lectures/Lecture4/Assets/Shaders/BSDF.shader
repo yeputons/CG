@@ -56,6 +56,7 @@
             #define GENERATOR GENERATOR_MT
             //#define SAMPLE_WHOLE_SPHERE
             //#define SHOW_DISTRIBUTION
+            //#define SHOW_GOOD_POINTS
 
             #if GENERATOR == GENERATOR_MT
             void initMT(uint seed, uint m1, uint m2, uint tmat);
@@ -130,6 +131,7 @@
 
                 float3 color = 0;
                 float3 sumF = 0;
+                int goodPoints = 0;
                 for (int step = 0; step < N; step++) {
                     #ifdef SAMPLE_WHOLE_SPHERE
                     float3 toLight = getRandomSphere();
@@ -141,6 +143,7 @@
                         return float4(1, 1, 1, 0);
                     }
                     #endif
+                    if (dot(n, toLight) >= 0) goodPoints++;
                     float3 curF = f(toLight, n, toView);
                     sumF += curF;
                     // Seed may differe between adjacent fragment shaders, so we may
@@ -151,7 +154,11 @@
                 }
                 float4 result = 0;
                 #ifndef SHOW_DISTRIBUTION
+                #ifndef SHOW_GOOD_POINTS
                 result.rgb = color / sumF;
+                #else
+                result.rgb = goodPoints * 1.0 / N;
+                #endif
                 #endif
                 return result;
             }
