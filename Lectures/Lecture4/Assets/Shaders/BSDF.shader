@@ -54,6 +54,8 @@
             #define GENERATOR_MT 2
 
             #define GENERATOR GENERATOR_MT
+            //#define SAMPLE_WHOLE_SPHERE
+            //#define SHOW_DISTRIBUTION
 
             #if GENERATOR == GENERATOR_MT
             void initMT(uint seed, uint m1, uint m2, uint tmat);
@@ -79,6 +81,14 @@
                 #endif
             }
 
+            #ifdef SAMPLE_WHOLE_SPHERE
+            float3 getRandomSphere() {
+                float c = 2 * rand() - 1;
+                float phi = rand() * 2 * PI;
+                float r = sqrt(1 - c * c);
+                return float3(r * cos(phi), c, r * sin(phi));
+            }
+            #else
             float3 getPerp(float3 v) {
                 if (abs(v.x) >= 0.5 || abs(v.y) >= 0.5)
                     return normalize(float3(v.y, -v.x, 0));
@@ -94,6 +104,7 @@
                 float r = sqrt(1 - c * c);
                 return normal * c + r * cos(phi) * plane1 + r * sin(phi) * plane2;
             }
+            #endif
 
             float3 f(float3 toLight, float3 normal, float3 toView) {
                 float lightNormalCos = dot(toLight, normal);
@@ -113,11 +124,23 @@
                 #endif
                 float3 n = normalize(i.normal);
                 float3 toView = normalize(_WorldSpaceCameraPos - i.pos.xyz);
+                #ifdef SHOW_DISTRIBUTION
+                n = float3(0, 1, 0);
+                #endif
 
                 float3 color = 0;
                 float3 sumF = 0;
                 for (int step = 0; step < N; step++) {
+                    #ifdef SAMPLE_WHOLE_SPHERE
+                    float3 toLight = getRandomSphere();
+                    #else
                     float3 toLight = getRandomHalfSphere(n);
+                    #endif
+                    #ifdef SHOW_DISTRIBUTION
+                    if (dot(toLight, normalize(i.normal)) >= 0.99999) {
+                        return float4(1, 1, 1, 0);
+                    }
+                    #endif
                     float3 curF = f(toLight, n, toView);
                     sumF += curF;
                     // Seed may differe between adjacent fragment shaders, so we may
@@ -127,7 +150,9 @@
                     color += curF * texCUBElod(SkyBox, float4(toLight, 0));
                 }
                 float4 result = 0;
+                #ifndef SHOW_DISTRIBUTION
                 result.rgb = color / sumF;
+                #endif
                 return result;
             }
 
